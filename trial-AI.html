@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pattern Habit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ── */
+:root {
+  --bg: #0e0e0e;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+  --text: #f0ede8;
+  --text2: #888;
+  --text3: #555;
+
+  --bioinfo:   #00c896;
+  --cybersec:  #ff4d6d;
+  --softdev:   #4d9fff;
+  --robotics:  #ffaa00;
+  --health:    #b388ff;
+  --other:     #888;
+
+  --today-bg: rgba(255,255,255,0.04);
+  --check-size: 28px;
+  --row-h: 52px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── LAYOUT ── */
+.app { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.logo-block {}
+.logo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+}
+.logo em { font-style: italic; color: var(--text2); }
+.tagline {
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.35rem;
+}
+
+/* ── ADD HABIT ── */
+.add-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.add-bar input[type="text"] {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 4px;
+  outline: none;
+  width: 180px;
+  transition: border-color 0.2s;
+}
+.add-bar input[type="text"]::placeholder { color: var(--text3); }
+.add-bar input[type="text"]:focus { border-color: var(--border2); background: var(--bg3); }
+
+.domain-select {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+.domain-select option { background: #1e1e1e; }
+
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.btn-add {
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 500;
+}
+.btn-add:hover { opacity: 0.85; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-sm {
+  font-size: 0.68rem;
+  padding: 0.3rem 0.65rem;
+}
+
+/* ── DOMAIN FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+.filter-label {
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 0.3rem;
+}
+.filter-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.filter-chip:hover { border-color: var(--border2); color: var(--text); }
+.filter-chip.active {
+  color: var(--bg);
+  border-color: transparent;
+}
+
+/* ── WEEK NAV ── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.week-label {
+  font-size: 0.75rem;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  min-width: 160px;
+}
+.week-label strong { color: var(--text); }
+
+/* ── GRID ── */
+.grid-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg2);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+/* header row */
+thead th {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 0.8rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th.habit-col { text-align: left; padding-left: 1rem; min-width: 180px; }
+thead th.streak-col { min-width: 60px; }
+thead th.today {
+  color: var(--text);
+  position: relative;
+}
+thead th.today::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+/* body rows */
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+td {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  height: var(--row-h);
+}
+td.habit-cell {
+  text-align: left;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+}
+td.today-col { background: var(--today-bg); }
+td.future-col { opacity: 0.35; pointer-events: none; }
+
+/* habit name */
+.habit-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.domain-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.habit-name {
+  font-size: 0.8rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  cursor: pointer;
+}
+.habit-name:focus {
+  outline: none;
+  border-bottom: 1px solid var(--border2);
+  max-width: 200px;
+}
+.habit-actions {
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+tbody tr:hover .habit-actions { opacity: 1; }
+.habit-del {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  transition: color 0.2s;
+  font-family: 'DM Mono', monospace;
+}
+.habit-del:hover { color: var(--cybersec); }
+
+/* connection note */
+.connection-note {
+  font-size: 0.6rem;
+  color: var(--text3);
+  font-style: italic;
+  cursor: pointer;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  transition: color 0.2s;
+}
+.connection-note:hover { color: var(--text2); }
+.connection-note:focus {
+  outline: none;
+  color: var(--text2);
+  max-width: 240px;
+}
+
+/* streak */
+.streak {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+.streak.hot { color: var(--robotics); }
+.streak-fire { font-size: 0.8rem; }
+
+/* checkmark cells */
+.check-btn {
+  width: var(--check-size);
+  height: var(--check-size);
+  border-radius: 6px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.check-btn:hover {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.04);
+}
+.check-btn.checked {
+  border-color: transparent;
+}
+.check-btn.checked::after {
+  content: '✓';
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--bg);
+}
+@keyframes pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.check-btn.pop { animation: pop 0.22s ease; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  display: none;
+}
+.empty-state.show { display: block; }
+.empty-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text2);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+.empty-sub {
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+}
+
+/* ── CONNECTIONS PANEL ── */
+.connections-toggle {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.connections-label {
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.connections-panel {
+  margin-top: 0.8rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: none;
+}
+.connections-panel.open { display: block; }
+.connections-intro {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+.conn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.72rem;
+}
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.conn-text { color: var(--text2); line-height: 1.5; }
+.conn-link { color: var(--text3); font-style: italic; }
+
+/* ── FOOTER ── */
+.foot {
+  margin-top: 3rem;
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  header { flex-direction: column; }
+  .add-bar input[type="text"] { width: 100%; }
+  .logo { font-size: 1.3rem; }
+  .habit-name { max-width: 90px; }
+  .connection-note { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo">The Pattern <em>Habit</em></div>
+      <div class="tagline">connect your domains · track your growth</div>
+    </div>
+    <div class="add-bar">
+      <input type="text" id="habitInput" placeholder="New habit..." maxlength="40" />
+      <select class="domain-select" id="domainSelect">
+        <option value="bioinfo">Bioinfo</option>
+        <option value="cybersec">Cybersec</option>
+        <option value="softdev">SoftDev</option>
+        <option value="robotics">Robotics</option>
+        <option value="health">Health</option>
+        <option value="other">◦ Other</option>
+      </select>
+      <button class="btn btn-add" onclick="addHabit()">+ Add</button>
+    </div>
+  </header>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-chip active" data-domain="all" onclick="setFilter('all', this)">All</button>
+    <button class="filter-chip" data-domain="bioinfo" onclick="setFilter('bioinfo', this)" style="--dc:var(--bioinfo)">Bioinfo</button>
+    <button class="filter-chip" data-domain="cybersec" onclick="setFilter('cybersec', this)" style="--dc:var(--cybersec)">Cybersec</button>
+    <button class="filter-chip" data-domain="softdev" onclick="setFilter('softdev', this)" style="--dc:var(--softdev)">SoftDev</button>
+    <button class="filter-chip" data-domain="robotics" onclick="setFilter('robotics', this)" style="--dc:var(--robotics)">Robotics</button>
+    <button class="filter-chip" data-domain="health" onclick="setFilter('health', this)" style="--dc:var(--health)">Health</button>
+    <button class="filter-chip" data-domain="other" onclick="setFilter('other', this)">Other</button>
+  </div>
+
+  <!-- WEEK NAV -->
+  <div class="week-nav">
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)">← Prev</button>
+    <span class="week-label" id="weekLabel"><strong>—</strong></span>
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(1)">Next →</button>
+    <button class="btn btn-ghost btn-sm" onclick="goToday()">Today</button>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-title">"A polymath doesn't just track habits.<br>They connect them."</div>
+    <div class="empty-sub">Add your first habit above to begin mapping your patterns.</div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid-wrap" id="gridWrap">
+    <table id="habitTable">
+      <thead>
+        <tr id="headerRow"></tr>
+      </thead>
+      <tbody id="habitBody"></tbody>
+    </table>
+  </div>
+
+  <!-- CONNECTIONS PANEL -->
+  <div class="connections-toggle" id="connToggle" style="display:none">
+    <span class="connections-label">Cross-domain connections</span>
+    <button class="btn btn-ghost btn-sm" onclick="toggleConnections()">Show</button>
+  </div>
+  <div class="connections-panel" id="connPanel">
+    <div class="connections-intro">These habits share underlying patterns across domains. Click any connection note in the grid to edit it.</div>
+    <div id="connList"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <span>The Pattern Habit — built for polymaths</span>
+    <span id="footDate"></span>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const DOMAINS = {
+  bioinfo:  { label: 'Bioinfo',  color: '#00c896' },
+  cybersec: { label: 'Cybersec', color: '#ff4d6d' },
+  softdev:  { label: 'SoftDev',  color: '#4d9fff' },
+  robotics: { label: 'Robotics', color: '#ffaa00' },
+  health:   { label: 'Health',   color: '#b388ff' },
+  other:    { label: 'Other',    color: '#888888' },
+};
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+let habits = [];
+let checks = {};  // key: "habitId_YYYY-MM-DD" => true
+let weekOffset = 0;
+let activeFilter = 'all';
+let connOpen = false;
+
+// ── PERSISTENCE ──
+function save() {
+  localStorage.setItem('tph_habits', JSON.stringify(habits));
+  localStorage.setItem('tph_checks', JSON.stringify(checks));
+}
+function load() {
+  try { habits = JSON.parse(localStorage.getItem('tph_habits')) || []; } catch { habits = []; }
+  try { checks = JSON.parse(localStorage.getItem('tph_checks')) || {}; } catch { checks = {}; }
+}
+
+// ── DATE HELPERS ──
+function getMonday(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const diff = (day === 0 ? -6 : 1 - day); // get to Monday
+  const mon = new Date(now);
+  mon.setDate(now.getDate() + diff + offset * 7);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+function dateStr(d) {
+  return d.toISOString().slice(0,10);
+}
+function todayStr() {
+  return dateStr(new Date());
+}
+function isFuture(d) {
+  return dateStr(d) > todayStr();
+}
+
+// ── STREAK ──
+function calcStreak(habitId) {
+  let streak = 0;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  // count backwards from today
+  let d = new Date(today);
+  while (true) {
+    const k = habitId + '_' + dateStr(d);
+    if (checks[k]) { streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+// ── RENDER ──
+function render() {
+  const monday = getMonday(weekOffset);
+  const weekDates = Array.from({length:7}, (_,i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    return d;
+  });
+
+  // week label
+  const wStart = weekDates[0];
+  const wEnd = weekDates[6];
+  const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('weekLabel').innerHTML = `<strong>${fmt(wStart)} – ${fmt(wEnd)}</strong>`;
+  document.getElementById('footDate').textContent = new Date().toDateString();
+
+  // header
+  const hr = document.getElementById('headerRow');
+  hr.innerHTML = `<th class="habit-col">Habit</th>`;
+  weekDates.forEach((d,i) => {
+    const isToday = dateStr(d) === todayStr();
+    hr.innerHTML += `<th class="${isToday?'today':''}">${DAYS[i]}<br><span style="font-size:0.6rem;font-weight:400">${d.getDate()}</span></th>`;
+  });
+  hr.innerHTML += `<th class="streak-col">Streak</th>`;
+
+  // filter
+  const filtered = activeFilter === 'all' ? habits : habits.filter(h => h.domain === activeFilter);
+
+  // empty state
+  const empty = document.getElementById('emptyState');
+  const gridWrap = document.getElementById('gridWrap');
+  const connToggle = document.getElementById('connToggle');
+  if (habits.length === 0) {
+    empty.classList.add('show');
+    gridWrap.style.display = 'none';
+    connToggle.style.display = 'none';
+  } else {
+    empty.classList.remove('show');
+    gridWrap.style.display = 'block';
+    connToggle.style.display = filtered.length > 0 ? 'flex' : 'none';
+  }
+
+  // body
+  const tbody = document.getElementById('habitBody');
+  tbody.innerHTML = '';
+
+  filtered.forEach(h => {
+    const streak = calcStreak(h.id);
+    const domainColor = DOMAINS[h.domain]?.color || '#888';
+    const tr = document.createElement('tr');
+
+    // habit cell
+    let habitCell = `<td class="habit-cell">
+      <div class="habit-name-wrap">
+        <span class="domain-dot" style="background:${domainColor}"></span>
+        <div>
+          <div class="habit-name" contenteditable="true" 
+            onblur="renameHabit('${h.id}', this.textContent)"
+            onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault()}"
+          >${escHtml(h.name)}</div>
+          <div class="connection-note" contenteditable="true"
+            onblur="saveNote('${h.id}', this.textContent)"
+            onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault()}"
+          >${escHtml(h.note || '+ add cross-domain connection...')}</div>
+        </div>
+        <div class="habit-actions">
+          <button class="habit-del" onclick="deleteHabit('${h.id}')" title="Delete">✕</button>
+        </div>
+      </div>
+    </td>`;
+    tr.innerHTML = habitCell;
+
+    // day cells
+    weekDates.forEach(d => {
+      const ds = dateStr(d);
+      const key = h.id + '_' + ds;
+      const isToday = ds === todayStr();
+      const future = isFuture(d);
+      const checked = !!checks[key];
+      const cls = [isToday?'today-col':'', future?'future-col':''].filter(Boolean).join(' ');
+      const td = document.createElement('td');
+      td.className = cls;
+      td.innerHTML = `<button class="check-btn ${checked?'checked':''}" 
+        style="${checked?'background:'+domainColor+';':''}"
+        onclick="toggle('${h.id}','${ds}',this)"
+        ${future?'disabled':''}>
+        ${checked ? '' : ''}
+      </button>`;
+      tr.appendChild(td);
+    });
+
+    // streak cell
+    const streakTd = document.createElement('td');
+    const hot = streak >= 3;
+    streakTd.innerHTML = `<div class="streak ${hot?'hot':''}">
+      ${hot?'<span class="streak-fire">🔥</span>':''}${streak > 0 ? streak : '—'}
+    </div>`;
+    tr.appendChild(streakTd);
+    tbody.appendChild(tr);
+  });
+
+  // connections panel
+  renderConnections(filtered);
+
+  // update filter chips active color
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    const d = chip.dataset.domain;
+    if (chip.classList.contains('active') && d !== 'all') {
+      chip.style.background = DOMAINS[d]?.color || '#fff';
+    } else if (chip.classList.contains('active')) {
+      chip.style.background = '#fff';
+      chip.style.color = '#0e0e0e';
+    } else {
+      chip.style.background = '';
+      chip.style.color = '';
+    }
+  });
+}
+
+function renderConnections(filtered) {
+  const list = document.getElementById('connList');
+  const withNotes = filtered.filter(h => h.note && h.note.trim() !== '' && !h.note.startsWith('+'));
+  if (withNotes.length === 0) {
+    list.innerHTML = `<div style="font-size:0.7rem;color:var(--text3);font-style:italic">No connections yet. Click the italic text under any habit name to add one.</div>`;
+    return;
+  }
+  list.innerHTML = withNotes.map(h => {
+    const color = DOMAINS[h.domain]?.color || '#888';
+    return `<div class="conn-item">
+      <span class="conn-dot" style="background:${color}"></span>
+      <div class="conn-text"><strong style="color:${color}">${escHtml(h.name)}</strong> <span class="conn-link">↔</span> ${escHtml(h.note)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+function addHabit() {
+  const input = document.getElementById('habitInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const domain = document.getElementById('domainSelect').value;
+  const habit = { id: 'h' + Date.now(), name, domain, note: '' };
+  habits.push(habit);
+  input.value = '';
+  save();
+  render();
+}
+
+function deleteHabit(id) {
+  habits = habits.filter(h => h.id !== id);
+  // clean checks
+  Object.keys(checks).forEach(k => { if (k.startsWith(id+'_')) delete checks[k]; });
+  save();
+  render();
+}
+
+function renameHabit(id, name) {
+  const h = habits.find(h => h.id === id);
+  if (h) { h.name = name.trim() || h.name; save(); }
+}
+
+function saveNote(id, note) {
+  const h = habits.find(h => h.id === id);
+  if (h) { h.note = note.trim(); save(); renderConnections(activeFilter==='all'?habits:habits.filter(x=>x.domain===activeFilter)); }
+}
+
+function toggle(habitId, ds, btn) {
+  const key = habitId + '_' + ds;
+  const habit = habits.find(h => h.id === habitId);
+  const color = DOMAINS[habit?.domain]?.color || '#fff';
+  if (checks[key]) {
+    delete checks[key];
+    btn.classList.remove('checked');
+    btn.style.background = '';
+  } else {
+    checks[key] = true;
+    btn.classList.add('checked');
+    btn.style.background = color;
+    btn.classList.add('pop');
+    setTimeout(() => btn.classList.remove('pop'), 300);
+  }
+  save();
+  // re-render streak only
+  render();
+}
+
+function changeWeek(dir) { weekOffset += dir; render(); }
+function goToday() { weekOffset = 0; render(); }
+
+function setFilter(domain, el) {
+  activeFilter = domain;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function toggleConnections() {
+  connOpen = !connOpen;
+  document.getElementById('connPanel').classList.toggle('open', connOpen);
+  document.querySelector('#connToggle button').textContent = connOpen ? 'Hide' : 'Show';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── ENTER KEY ON INPUT ──
+document.getElementById('habitInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addHabit();
+});
+
+// ── INIT ──
+load();
+render();
+</script>
+</body>
+</html>
