@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pattern Habit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ── */
+:root {
+  --bg: #0e0e0e;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+  --text: #f0ede8;
+  --text2: #888;
+  --text3: #555;
+
+  --bioinfo:   #00c896;
+  --cybersec:  #ff4d6d;
+  --softdev:   #4d9fff;
+  --robotics:  #ffaa00;
+  --health:    #b388ff;
+  --other:     #888;
+
+  --today-bg: rgba(255,255,255,0.04);
+  --check-size: 28px;
+  --row-h: 52px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── LAYOUT ── */
+.app { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.logo-block {}
+.logo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+}
+.logo em { font-style: italic; color: var(--text2); }
+.tagline {
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 0.35rem;
+}
+
+/* ── ADD HABIT ── */
+.add-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.add-bar input[type="text"] {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 4px;
+  outline: none;
+  width: 180px;
+  transition: border-color 0.2s;
+}
+.add-bar input[type="text"]::placeholder { color: var(--text3); }
+.add-bar input[type="text"]:focus { border-color: var(--border2); background: var(--bg3); }
+
+.domain-select {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+.domain-select option { background: #1e1e1e; }
+
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.btn-add {
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 500;
+}
+.btn-add:hover { opacity: 0.85; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-sm {
+  font-size: 0.68rem;
+  padding: 0.3rem 0.65rem;
+}
+
+/* ── DOMAIN FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+.filter-label {
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 0.3rem;
+}
+.filter-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.filter-chip:hover { border-color: var(--border2); color: var(--text); }
+.filter-chip.active {
+  color: var(--bg);
+  border-color: transparent;
+}
+
+/* ── WEEK NAV ── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.week-label {
+  font-size: 0.75rem;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  min-width: 160px;
+}
+.week-label strong { color: var(--text); }
+
+/* ── GRID ── */
+.grid-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg2);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+/* header row */
+thead th {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 0.8rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th.habit-col { text-align: left; padding-left: 1rem; min-width: 180px; }
+thead th.streak-col { min-width: 60px; }
+thead th.today {
+  color: var(--text);
+  position: relative;
+}
+thead th.today::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+/* body rows */
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+td {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  height: var(--row-h);
+}
+td.habit-cell {
+  text-align: left;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+}
+td.today-col { background: var(--today-bg); }
+td.future-col { opacity: 0.6; }
+td.future-col .check-btn { border-style: dashed; }
+
+/* habit name */
+.habit-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.domain-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.habit-name {
+  font-size: 0.8rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  cursor: pointer;
+}
+.habit-name:focus {
+  outline: none;
+  border-bottom: 1px solid var(--border2);
+  max-width: 200px;
+}
+.habit-actions {
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+tbody tr:hover .habit-actions { opacity: 1; }
+.habit-del {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  transition: color 0.2s;
+  font-family: 'DM Mono', monospace;
+}
+.habit-del:hover { color: var(--cybersec); }
+
+/* connection note */
+.connection-note {
+  font-size: 0.6rem;
+  color: var(--text3);
+  font-style: italic;
+  cursor: pointer;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  transition: color 0.2s;
+}
+.connection-note:hover { color: var(--text2); }
+.connection-note:focus {
+  outline: none;
+  color: var(--text2);
+  max-width: 240px;
+}
+
+/* streak */
+.streak {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+.streak.hot { color: var(--robotics); }
+.streak-fire { font-size: 0.8rem; }
+
+/* checkmark cells */
+.check-btn {
+  width: var(--check-size);
+  height: var(--check-size);
+  border-radius: 6px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.check-btn:hover {
+  border-color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.04);
+}
+.check-btn.checked {
+  border-color: transparent;
+}
+
+.check-btn.planned {
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.35);
+}
+.check-btn.planned::after {
+  content: '◦';
+  font-size: 1rem;
+  color: var(--text2);
+}
+.check-btn.checked::after {
+  content: '✓';
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--bg);
+}
+@keyframes pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.check-btn.pop { animation: pop 0.22s ease; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  display: none;
+}
+.empty-state.show { display: block; }
+.empty-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text2);
+  margin-bottom: 0.6rem;
+  line-height: 1.3;
+}
+.empty-sub {
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+}
+
+/* ── DOMAIN MANAGER ── */
+.domain-setup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.domain-setup-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90vw;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.domain-setup-modal h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.domain-setup-modal .setup-sub {
+  font-size: 0.68rem;
+  color: var(--text3);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+}
+.macro-section {
+  margin-bottom: 1.2rem;
+}
+.macro-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.macro-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.macro-domains-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  min-height: 28px;
+}
+.macro-domain-chip {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'DM Mono', monospace;
+}
+.macro-domain-chip .chip-del {
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 0.7rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  padding: 0;
+}
+.macro-domain-chip .chip-del:hover { color: var(--cybersec); }
+.add-domain-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.add-domain-row input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  outline: none;
+  width: 140px;
+}
+.add-domain-row input::placeholder { color: var(--text3); }
+.add-domain-row input:focus { border-color: var(--border2); }
+.color-pick {
+  width: 28px; height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  padding: 2px;
+  background: var(--bg3);
+  cursor: pointer;
+}
+.setup-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.manage-domains-btn {
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  padding: 0;
+  transition: color 0.2s;
+}
+.manage-domains-btn:hover { color: var(--text2); }
+
+
+/* ── CONNECTIONS PANEL ── */
+.connections-toggle {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.connections-label {
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.connections-panel {
+  margin-top: 0.8rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: none;
+}
+.connections-panel.open { display: block; }
+.connections-intro {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+.conn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.72rem;
+}
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.conn-text { color: var(--text2); line-height: 1.5; }
+.conn-link { color: var(--text3); font-style: italic; }
+
+/* ── TAGS ── */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 3px;
+  max-width: 220px;
+}
+.tag-chip {
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 50px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.tag-chip:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.4);
+}
+.tag-chip.tag-active {
+  color: var(--bg);
+  border-color: transparent;
+}
+.tag-add-btn {
+  font-size: 0.58rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 50px;
+  border: 1px dashed var(--border2);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: all 0.18s;
+}
+.tag-add-btn:hover { color: var(--text2); border-color: var(--border2); }
+
+/* tag modal */
+.tag-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tag-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  min-width: 320px;
+  max-width: 480px;
+  width: 90vw;
+}
+.tag-modal h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.tag-modal label {
+  font-size: 0.65rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.35rem;
+  margin-top: 0.8rem;
+}
+.tag-modal select, .tag-modal input[type="date"] {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  outline: none;
+}
+.tag-modal select option { background: #1e1e1e; }
+.tag-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  justify-content: flex-end;
+}
+.highlighted-habit td {
+  background: rgba(255,255,255,0.06) !important;
+  transition: background 0.4s;
+}
+
+/* ── FOOTER ── */
+.foot {
+  margin-top: 3rem;
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  header { flex-direction: column; }
+  .add-bar input[type="text"] { width: 100%; }
+  .logo { font-size: 1.3rem; }
+  .habit-name { max-width: 90px; }
+  .connection-note { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo">The Pattern <em>Habit</em></div>
+      <div class="tagline">connect your domains · track your growth</div>
+    </div>
+    <button class="manage-domains-btn" onclick="openDomainManager(false)">⊕ manage domains</button>
+    <div class="add-bar">
+      <input type="text" id="habitInput" placeholder="New habit..." maxlength="40" />
+      <select class="domain-select" id="domainSelect">
+      </select>
+      <button class="btn btn-add" onclick="addHabit()">+ Add</button>
+    </div>
+  </header>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" id="filterBar">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-chip active" data-domain="all" onclick="setFilter('all', this)">All</button>
+  </div>
+
+  <!-- WEEK NAV -->
+  <div class="week-nav">
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)">← Prev</button>
+    <span class="week-label" id="weekLabel"><strong>—</strong></span>
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(1)">Next →</button>
+    <button class="btn btn-ghost btn-sm" onclick="goToday()">Today</button>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-title">"A polymath doesn't just track habits.<br>They connect them."</div>
+    <div class="empty-sub">Add your first habit above to begin mapping your patterns.</div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid-wrap" id="gridWrap">
+    <table id="habitTable">
+      <thead>
+        <tr id="headerRow"></tr>
+      </thead>
+      <tbody id="habitBody"></tbody>
+    </table>
+  </div>
+
+  <!-- CONNECTIONS PANEL -->
+  <div class="connections-toggle" id="connToggle" style="display:none">
+    <span class="connections-label">Cross-domain connections</span>
+    <button class="btn btn-ghost btn-sm" onclick="toggleConnections()">Show</button>
+  </div>
+  <div class="connections-panel" id="connPanel">
+    <div class="connections-intro">These habits share underlying patterns across domains. Click any connection note in the grid to edit it.</div>
+    <div id="connList"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <span>The Pattern Habit — built for polymaths</span>
+    <span id="footDate"></span>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const MACRO_CATEGORIES = {
+  physical:       { label: 'Physical',       color: '#00c896' },
+  mental:         { label: 'Mental',         color: '#4d9fff' },
+  spiritual:      { label: 'Spiritual',      color: '#b388ff' },
+  accountability: { label: 'Accountability', color: '#ffaa00' },
+};
+
+let DOMAINS = {}; // populated from localStorage or setup
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// ── DOMAIN MANAGER ──
+function saveDomains() {
+  localStorage.setItem('tph_domains', JSON.stringify(DOMAINS));
+}
+
+function loadDomains() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('tph_domains'));
+    if (stored && Object.keys(stored).length > 0) {
+      DOMAINS = stored;
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+function rebuildDomainUI() {
+  // rebuild select dropdown
+  const sel = document.getElementById('domainSelect');
+  sel.innerHTML = Object.entries(DOMAINS).map(([id, d]) =>
+    `<option value="${id}">${escHtml(d.label)}</option>`
+  ).join('');
+
+  // rebuild filter bar
+  const bar = document.getElementById('filterBar');
+  // remove all chips except "All"
+  bar.querySelectorAll('.filter-chip:not([data-domain="all"])').forEach(c => c.remove());
+  Object.entries(DOMAINS).forEach(([id, d]) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip';
+    btn.dataset.domain = id;
+    btn.textContent = d.label;
+    btn.onclick = function() { setFilter(id, this); };
+    bar.appendChild(btn);
+  });
+
+  // also rebuild CSS vars for each domain color
+  Object.entries(DOMAINS).forEach(([id, d]) => {
+    document.documentElement.style.setProperty('--' + id, d.color);
+  });
+}
+
+function openDomainManager(isFirstTime) {
+  const existing = document.getElementById('domainSetupOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'domain-setup-overlay';
+  overlay.id = 'domainSetupOverlay';
+
+  const macroSections = Object.entries(MACRO_CATEGORIES).map(([macroId, macro]) => {
+    const domainsInMacro = Object.entries(DOMAINS).filter(([,d]) => d.macro === macroId);
+    const chips = domainsInMacro.map(([id, d]) =>
+      `<span class="macro-domain-chip" id="chip_${id}">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${d.color};flex-shrink:0"></span>
+        ${escHtml(d.label)}
+        <button class="chip-del" onclick="removeDomainFromManager('${id}')" title="Remove">✕</button>
+      </span>`
+    ).join('');
+
+    return `<div class="macro-section">
+      <div class="macro-label" style="color:${macro.color}">
+        <span class="macro-dot" style="background:${macro.color}"></span>
+        ${macro.label}
+      </div>
+      <div class="macro-domains-list" id="macroList_${macroId}">${chips}</div>
+      <div class="add-domain-row">
+        <input type="text" id="newDomainName_${macroId}" placeholder="Domain name..." maxlength="24"
+          onkeydown="if(event.key==='Enter') addDomainFromManager('${macroId}')" />
+        <input type="color" class="color-pick" id="newDomainColor_${macroId}" value="${macro.color}" />
+        <button class="btn btn-ghost btn-sm" onclick="addDomainFromManager('${macroId}')">+ Add</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  overlay.innerHTML = `
+    <div class="domain-setup-modal" onclick="event.stopPropagation()">
+      <h2>${isFirstTime ? 'Welcome — set up your domains' : 'Manage Domains'}</h2>
+      <p class="setup-sub">${isFirstTime
+        ? 'Define the areas of your life you want to track. Assign each to a macro-category.'
+        : 'Add or remove domains. Changes apply immediately.'}</p>
+      ${macroSections}
+      <div class="setup-actions">
+        ${isFirstTime ? '' : '<button class="btn btn-ghost btn-sm" onclick="closeDomainManager()">Close</button>'}
+        <button class="btn btn-add btn-sm" onclick="confirmDomainSetup(${isFirstTime})">
+          ${isFirstTime ? 'Start Tracking →' : 'Save & Close'}
+        </button>
+      </div>
+    </div>`;
+
+  if (!isFirstTime) overlay.addEventListener('click', closeDomainManager);
+  document.body.appendChild(overlay);
+}
+
+function addDomainFromManager(macroId) {
+  const nameInput = document.getElementById(`newDomainName_${macroId}`);
+  const colorInput = document.getElementById(`newDomainColor_${macroId}`);
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const id = 'dom_' + name.toLowerCase().replace(/[^a-z0-9]/g,'_') + '_' + Date.now().toString(36);
+  const color = colorInput.value;
+  DOMAINS[id] = { label: name, color, macro: macroId };
+
+  // add chip to the live modal list
+  const list = document.getElementById(`macroList_${macroId}`);
+  const chip = document.createElement('span');
+  chip.className = 'macro-domain-chip';
+  chip.id = `chip_${id}`;
+  chip.innerHTML = `
+    <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0"></span>
+    ${escHtml(name)}
+    <button class="chip-del" onclick="removeDomainFromManager('${id}')" title="Remove">✕</button>`;
+  list.appendChild(chip);
+  nameInput.value = '';
+}
+
+function removeDomainFromManager(id) {
+  delete DOMAINS[id];
+  const chip = document.getElementById(`chip_${id}`);
+  if (chip) chip.remove();
+}
+
+function confirmDomainSetup(isFirstTime) {
+  if (Object.keys(DOMAINS).length === 0) {
+    alert('Please add at least one domain before continuing.');
+    return;
+  }
+  saveDomains();
+  rebuildDomainUI();
+  closeDomainManager();
+  if (isFirstTime) render();
+}
+
+function closeDomainManager() {
+  const overlay = document.getElementById('domainSetupOverlay');
+  if (overlay) overlay.remove();
+}
+
+
+let habits = [];
+let checks = {};  // key: "habitId_YYYY-MM-DD" => "done" | "planned"let weekOffset = 0;
+let activeFilter = 'all';
+let connOpen = false;
+
+// ── PERSISTENCE ──
+function save() {
+  localStorage.setItem('tph_habits', JSON.stringify(habits));
+  localStorage.setItem('tph_checks', JSON.stringify(checks));
+}
+function load() {
+  try { habits = JSON.parse(localStorage.getItem('tph_habits')) || []; } catch { habits = []; }
+  try { checks = JSON.parse(localStorage.getItem('tph_checks')) || {}; } catch { checks = {}; }
+}
+
+function init() {
+  load();
+  const hasDomains = loadDomains();
+  if (!hasDomains) {
+    openDomainManager(true);
+  } else {
+    rebuildDomainUI();
+    render();
+  }
+}
+
+// ── DATE HELPERS ──
+function getMonday(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const diff = (day === 0 ? -6 : 1 - day); // get to Monday
+  const mon = new Date(now);
+  mon.setDate(now.getDate() + diff + offset * 7);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+function dateStr(d) {
+  return d.toISOString().slice(0,10);
+}
+function todayStr() {
+  return dateStr(new Date());
+}
+function isFuture(d) {
+  return dateStr(d) > todayStr();
+}
+
+// ── STREAK ──
+function calcStreak(habitId) {
+  let streak = 0;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  // count backwards from today
+  let d = new Date(today);
+  while (true) {
+    const k = habitId + '_' + dateStr(d);
+    if (checks[k] === 'done' || checks[k] === true) { streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+// ── RENDER ──
+function render() {
+  const monday = getMonday(weekOffset);
+  const weekDates = Array.from({length:7}, (_,i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    return d;
+  });
+
+  // week label
+  const wStart = weekDates[0];
+  const wEnd = weekDates[6];
+  const fmt = d => d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('weekLabel').innerHTML = `<strong>${fmt(wStart)} – ${fmt(wEnd)}</strong>`;
+  document.getElementById('footDate').textContent = new Date().toDateString();
+
+  // header
+  const hr = document.getElementById('headerRow');
+  hr.innerHTML = `<th class="habit-col">Habit</th>`;
+  weekDates.forEach((d,i) => {
+    const isToday = dateStr(d) === todayStr();
+    hr.innerHTML += `<th class="${isToday?'today':''}">${DAYS[i]}<br><span style="font-size:0.6rem;font-weight:400">${d.getDate()}</span></th>`;
+  });
+  hr.innerHTML += `<th class="streak-col">Streak</th>`;
+
+  // filter
+  const filtered = activeFilter === 'all' ? habits : habits.filter(h => h.domain === activeFilter);
+
+  // empty state
+  const empty = document.getElementById('emptyState');
+  const gridWrap = document.getElementById('gridWrap');
+  const connToggle = document.getElementById('connToggle');
+  if (habits.length === 0) {
+    empty.classList.add('show');
+    gridWrap.style.display = 'none';
+    connToggle.style.display = 'none';
+  } else {
+    empty.classList.remove('show');
+    gridWrap.style.display = 'block';
+    connToggle.style.display = filtered.length > 0 ? 'flex' : 'none';
+  }
+
+  // body
+  const tbody = document.getElementById('habitBody');
+  tbody.innerHTML = '';
+
+  filtered.forEach(h => {
+    const streak = calcStreak(h.id);
+    const domainColor = DOMAINS[h.domain]?.color || '#888';
+    const tr = document.createElement('tr');
+
+    // habit cell
+    let habitCell = `<td class="habit-cell">
+      <div class="habit-name-wrap">
+        <span class="domain-dot" style="background:${domainColor}"></span>
+        <div>
+          <div class="habit-name" contenteditable="true" 
+            onblur="renameHabit('${h.id}', this.textContent)"
+            onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault()}"
+          >${escHtml(h.name)}</div>
+          <div class="connection-note" contenteditable="true"
+            onblur="saveNote('${h.id}', this.textContent)"
+            onkeydown="if(event.key==='Enter'){this.blur();event.preventDefault()}"
+          >${escHtml(h.note || '+ add note...')}</div>
+          <div class="tag-list">
+            ${(h.tags||[]).map((tag,i) => {
+              const linked = habits.find(x => x.id === tag.linkedHabitId);
+              const linkedColor = linked ? (DOMAINS[linked.domain]?.color || '#888') : '#888';
+              const dateHint = tag.linkedDate ? ` @ ${tag.linkedDate}` : '';
+              const linkedMacro = linked ? (DOMAINS[linked.domain]?.macro || '') : '';
+              const macroLabel = linkedMacro ? ` [${MACRO_CATEGORIES[linkedMacro]?.label || linkedMacro}]` : '';
+              return `<span class="tag-chip tag-active"
+                style="background:${linkedColor}22;border-color:${linkedColor}66;color:${linkedColor}"
+                onclick="clickTag('${h.id}',${i})"
+                title="${escHtml(linked?.name||'deleted')}${macroLabel}${dateHint} — click to jump, dbl-click to remove"
+                ondblclick="removeTag('${h.id}',${i})"
+              >${escHtml(tag.label)}</span>`;
+            }).join('')}
+            <button class="tag-add-btn" onclick="openTagModal('${h.id}')" title="Link to another habit">+ link</button>
+          </div>
+        </div>
+        <div class="habit-actions">
+          <button class="habit-del" onclick="deleteHabit('${h.id}')" title="Delete">✕</button>
+        </div>
+      </div>
+    </td>`;
+    tr.innerHTML = habitCell;
+
+    // day cells
+    weekDates.forEach(d => {
+      const ds = dateStr(d);
+      const key = h.id + '_' + ds;
+      const isToday = ds === todayStr();
+      const future = isFuture(d);
+      const checked = !!checks[key];
+      const state = checks[key] === 'done' ? 'done' : (checks[key] === 'planned' || checks[key] === true) ? 'planned' : 'none';
+      const cls = [isToday?'today-col':'', future?'future-col':''].filter(Boolean).join(' ');
+      const td = document.createElement('td');
+      td.className = cls;
+      const btnClass = state === 'done' ? 'checked' : state === 'planned' ? 'planned' : '';
+      const btnStyle = state === 'done' ? `background:${domainColor};` : '';
+      td.innerHTML = `<button class="check-btn ${btnClass}" 
+        style="${btnStyle}"
+        onclick="toggle('${h.id}','${ds}',this)">
+      </button>`;
+      tr.appendChild(td);
+    });
+
+    // streak cell
+    const streakTd = document.createElement('td');
+    const hot = streak >= 3;
+    streakTd.innerHTML = `<div class="streak ${hot?'hot':''}">
+      ${hot?'<span class="streak-fire">🔥</span>':''}${streak > 0 ? streak : '—'}
+    </div>`;
+    tr.appendChild(streakTd);
+    tbody.appendChild(tr);
+  });
+
+  // connections panel
+  renderConnections(filtered);
+
+  // update filter chips active color
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    const d = chip.dataset.domain;
+    if (chip.classList.contains('active') && d !== 'all') {
+      chip.style.background = DOMAINS[d]?.color || '#fff';
+    } else if (chip.classList.contains('active')) {
+      chip.style.background = '#fff';
+      chip.style.color = '#0e0e0e';
+    } else {
+      chip.style.background = '';
+      chip.style.color = '';
+    }
+  });
+}
+
+// ── TAG SYSTEM ──
+function openTagModal(habitId) {
+  const existing = document.getElementById('tagModalOverlay');
+  if (existing) existing.remove();
+  const habit = habits.find(h => h.id === habitId);
+  if (!habit) return;
+  const otherHabits = habits.filter(h => h.id !== habitId);
+  if (otherHabits.length === 0) { alert('Add at least one other habit first to link to.'); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'tag-modal-overlay';
+  overlay.id = 'tagModalOverlay';
+  overlay.innerHTML = `
+    <div class="tag-modal" onclick="event.stopPropagation()">
+      <h3>Link "${escHtml(habit.name)}" to another habit</h3>
+      <label>Target Habit</label>
+      <select id="tagTargetHabit">
+        ${otherHabits.map(h => {
+          const color = DOMAINS[h.domain]?.color || '#888';
+          const macro = DOMAINS[h.domain]?.macro || '';
+          const macroLabel = macro ? ` · ${MACRO_CATEGORIES[macro]?.label || macro}` : '';
+          return `<option value="${h.id}" style="color:${color}">${escHtml(h.name)} (${DOMAINS[h.domain]?.label || h.domain}${macroLabel})</option>`;
+        }).join('')}
+      </select>
+      <label>Link to specific date entry (optional)</label>
+      <input type="date" id="tagTargetDate" value="" />
+      <label>Short label for this tag</label>
+      <input type="text" id="tagLabel" placeholder="e.g. reinforces focus, same skill..." maxlength="30"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:0.75rem;padding:0.5rem 0.75rem;border-radius:4px;outline:none;" />
+      <div class="tag-modal-actions">
+        <button class="btn btn-ghost btn-sm" onclick="closeTagModal()">Cancel</button>
+        <button class="btn btn-add btn-sm" onclick="confirmAddTag('${habitId}')">Add Tag</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', closeTagModal);
+  document.body.appendChild(overlay);
+}
+
+function closeTagModal() {
+  const overlay = document.getElementById('tagModalOverlay');
+  if (overlay) overlay.remove();
+}
+
+function confirmAddTag(habitId) {
+  const habit = habits.find(h => h.id === habitId);
+  if (!habit) return;
+  const linkedHabitId = document.getElementById('tagTargetHabit').value;
+  const linkedDate = document.getElementById('tagTargetDate').value || null;
+  const label = document.getElementById('tagLabel').value.trim();
+  if (!label) { alert('Please enter a label for the tag.'); return; }
+  if (!habit.tags) habit.tags = [];
+  habit.tags.push({ linkedHabitId, linkedDate, label });
+  save();
+  closeTagModal();
+  render();
+}
+
+function removeTag(habitId, tagIndex) {
+  const habit = habits.find(h => h.id === habitId);
+  if (habit && habit.tags) { habit.tags.splice(tagIndex, 1); save(); render(); }
+}
+
+function clickTag(habitId, tagIndex) {
+  const habit = habits.find(h => h.id === habitId);
+  if (!habit || !habit.tags) return;
+  const tag = habit.tags[tagIndex];
+  if (!tag) return;
+  document.querySelectorAll('.highlighted-habit').forEach(r => r.classList.remove('highlighted-habit'));
+  const linkedHabit = habits.find(h => h.id === tag.linkedHabitId);
+  if (!linkedHabit) { alert('Linked habit not found — it may have been deleted.'); return; }
+  if (tag.linkedDate) {
+    const targetDate = new Date(tag.linkedDate + 'T00:00:00');
+    const targetMonday = new Date(targetDate);
+    const tDay = targetDate.getDay();
+    targetMonday.setDate(targetDate.getDate() + (tDay === 0 ? -6 : 1 - tDay));
+    const curMonday = getMonday(0);
+    weekOffset = Math.round((targetMonday - curMonday) / (7 * 24 * 60 * 60 * 1000));
+    render();
+  }
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#habitBody tr');
+    const filteredHabits = activeFilter === 'all' ? habits : habits.filter(h => h.domain === activeFilter);
+    const rowIndex = filteredHabits.findIndex(h => h.id === tag.linkedHabitId);
+    if (rowIndex >= 0 && rows[rowIndex]) {
+      rows[rowIndex].classList.add('highlighted-habit');
+      rows[rowIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => rows[rowIndex].classList.remove('highlighted-habit'), 2000);
+    } else {
+      alert(`"${linkedHabit.name}" is in a filtered-out domain. Switch to "All" to see it.`);
+    }
+  }, 50);
+}
+
+function renderConnections(filtered) {
+  const list = document.getElementById('connList');
+  const withNotes = filtered.filter(h => h.note && h.note.trim() !== '' && !h.note.startsWith('+'));
+  if (withNotes.length === 0) {
+    list.innerHTML = `<div style="font-size:0.7rem;color:var(--text3);font-style:italic">No connections yet. Click the italic text under any habit name to add one.</div>`;
+    return;
+  }
+  list.innerHTML = withNotes.map(h => {
+    const color = DOMAINS[h.domain]?.color || '#888';
+    return `<div class="conn-item">
+      <span class="conn-dot" style="background:${color}"></span>
+      <div class="conn-text"><strong style="color:${color}">${escHtml(h.name)}</strong> <span class="conn-link">↔</span> ${escHtml(h.note)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+function addHabit() {
+  const input = document.getElementById('habitInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const domain = document.getElementById('domainSelect').value;
+  const habit = { id: 'h' + Date.now(), name, domain, note: '' };
+  habits.push(habit);
+  input.value = '';
+  save();
+  render();
+}
+
+function deleteHabit(id) {
+  habits = habits.filter(h => h.id !== id);
+  // clean checks
+  Object.keys(checks).forEach(k => { if (k.startsWith(id+'_')) delete checks[k]; });
+  save();
+  render();
+}
+
+function renameHabit(id, name) {
+  const h = habits.find(h => h.id === id);
+  if (h) { h.name = name.trim() || h.name; save(); }
+}
+
+function saveNote(id, note) {
+  const h = habits.find(h => h.id === id);
+  if (h) { h.note = note.trim(); save(); renderConnections(activeFilter==='all'?habits:habits.filter(x=>x.domain===activeFilter)); }
+}
+
+function toggle(habitId, ds, btn) {
+  const key = habitId + '_' + ds;
+  const habit = habits.find(h => h.id === habitId);
+  const color = DOMAINS[habit?.domain]?.color || '#fff';
+  const current = checks[key];
+  const future = ds > todayStr();
+
+  if (!current) {
+    // empty → planned (future) or done (past/today)
+    if (future) {
+      checks[key] = 'planned';
+      btn.classList.remove('checked');
+      btn.classList.add('planned');
+      btn.style.background = '';
+    } else {
+      checks[key] = 'done';
+      btn.classList.add('checked');
+      btn.style.background = color;
+      btn.classList.add('pop');
+      setTimeout(() => btn.classList.remove('pop'), 300);
+    }
+  } else if (current === 'planned') {
+    // planned → done (only reachable when that day arrives)
+    checks[key] = 'done';
+    btn.classList.remove('planned');
+    btn.classList.add('checked');
+    btn.style.background = color;
+    btn.classList.add('pop');
+    setTimeout(() => btn.classList.remove('pop'), 300);
+  } else {
+    // done → empty
+    delete checks[key];
+    btn.classList.remove('checked', 'planned');
+    btn.style.background = '';
+  }
+  save();
+  render();
+}
+
+function changeWeek(dir) { weekOffset += dir; render(); }
+function goToday() { weekOffset = 0; render(); }
+
+function setFilter(domain, el) {
+  activeFilter = domain;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function toggleConnections() {
+  connOpen = !connOpen;
+  document.getElementById('connPanel').classList.toggle('open', connOpen);
+  document.querySelector('#connToggle button').textContent = connOpen ? 'Hide' : 'Show';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── ENTER KEY ON INPUT ──
+document.getElementById('habitInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addHabit();
+});
+
+// ── INIT ──
+init();
+</script>
+</body>
+</html>
